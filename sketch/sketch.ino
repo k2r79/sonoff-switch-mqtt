@@ -62,8 +62,10 @@ void setLightState(boolean isOn) {
   
   digitalWrite(RELAY_GPIO, isOn ? HIGH : LOW);
   lightState = isOn;
-  
-  publishLightState();
+
+  if (client.connected()) {
+    publishLightState(); 
+  }
 }
 
 void connectMQTT() {
