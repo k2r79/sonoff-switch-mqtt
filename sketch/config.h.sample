@@ -8,5 +8,8 @@ const char* MQTT_ID = ...; // ex: "Living Room Light"
 const char* MQTT_USERNAME = ...; // ex: "homeassistant"
 const char* MQTT_PASSWORD = ...; // ex: "H0m34ss1st4nt"
 
+const char* OTA_HOSTNAME = ...; // ex: "ESP8266_Living_Room"
+const char* OTA_PASSWORD = ...; // ex: "S3cr3t"
+
 const char* COMMAND_TOPIC = ...; // ex: "/home_assistant/light/living_room/set"
 const char* STATE_TOPIC = ...; // ex: "/home_assistant/light/living_room/state"

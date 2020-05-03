@@ -13,6 +13,10 @@ You can use the `sketch/config.h.sample` as a base.
 cp sketch/config.h.sample sketch/config.h
 ```
 
+### Install Arduino OTA
+
+You can follow this [tutorial](https://github.com/esp8266/Arduino#using-git-version) to install Arduino OTA, it will allow you to update your device over the air.
+
 ### Flashing
 
 To flash your Sonoff Switch you can follow [this great tutorial over at randomnerdtutorials.com](https://randomnerdtutorials.com/how-to-flash-a-custom-firmware-to-sonoff/) using the code of this project.
