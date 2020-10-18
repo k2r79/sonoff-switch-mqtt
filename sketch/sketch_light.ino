@@ -10,9 +10,9 @@
 
 WiFiClient espClient;
 PubSubClient client(espClient);
-bool wifiConnected = false;
 
-boolean lightState = false;
+bool wifiConnected = false;
+bool lightState = false;
 
 void setup() {
   pinMode(BUTTON_GPIO, INPUT);

@@ -1,5 +1,5 @@
-sketch/config.h
-sketch/config.h.*
-!sketch/config.sample
+sketch/**/config.h
+sketch/**/config.h.*
+!sketch/**/config.sample
 
 .history
