@@ -1,7 +1,6 @@
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 #include <WiFiUdp.h>
-#include <ArduinoOTA.h>
 #include "config.h"
 
 #define BUTTON_GPIO 0
@@ -11,8 +10,9 @@
 WiFiClient espClient;
 PubSubClient client(espClient);
 
-bool wifiConnected = false;
 bool lightState = false;
+bool wifiConnected = false;
+long buttonWaitInterval = 8000;
 
 void setup() {
   pinMode(BUTTON_GPIO, INPUT);
@@ -26,40 +26,44 @@ void setup() {
   // Connecting to Wifi
   WiFi.hostname(WIFI_HOSTNAME);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+
+  // Connecting to MQTT broker
+  client.setServer(MQTT_HOST, MQTT_PORT);
+  client.setCallback(callback);
 }
 
 void loop() {
-  if (!wifiConnected) {
-    blink(500, 1);
-  
-    // Connected to Wifi
-    if (WiFi.status() == WL_CONNECTED) {
-      wifiConnected = true;
-      
+  // Connected to Wifi
+  if (WiFi.status() == WL_CONNECTED) { 
+
+    if (!wifiConnected) {
       blink(200, 3);
       digitalWrite(LED_GPIO, LOW);
-
-      // Connecting to MQTT broker
-      client.setServer(MQTT_HOST, MQTT_PORT);
-      client.setCallback(callback);
-
-      ArduinoOTA.setHostname(WIFI_HOSTNAME);
-      ArduinoOTA.setPassword(OTA_PASSWORD);
-      ArduinoOTA.begin();
+      
+      wifiConnected = true;
     }
+
+    if (!client.connected()) {
+      connectMQTT();
+    }
+  } else {
+    blink(1000, 1);
+    wifiConnected = false;
   }
 
-  if (digitalRead(BUTTON_GPIO) == LOW) {
-    setLightState(!lightState);
-  }
-  
-  if (!client.connected()) {
-    connectMQTT();
-  }
-   
   client.loop();
 
-  ArduinoOTA.handle();
+  listenForButton();
+}
+
+void listenForButton() {
+  long startMillis = millis();
+
+  while (startMillis - millis() < buttonWaitInterval) {
+    if (digitalRead(BUTTON_GPIO) == LOW) {
+      setLightState(!lightState);
+    }
+  }
 }
 
 void callback(char* topic, byte* payload, unsigned int length) {  
@@ -79,14 +83,12 @@ void setLightState(boolean isOn) {
 }
 
 void connectMQTT() {
-  while (!client.connected()) {
-    if (client.connect(MQTT_ID, MQTT_USERNAME, MQTT_PASSWORD)) {
-      blink(100, 3);
-      client.subscribe(COMMAND_TOPIC);
-      publishLightState();
-    } else {
-      blink(1000, 2);
-    }
+  if (client.connect(MQTT_ID, MQTT_USERNAME, MQTT_PASSWORD)) {
+    client.subscribe(COMMAND_TOPIC);
+    publishLightState();
+    blink(100, 6);
+  } else {
+    blink(500, 2);
   }
 }
 
@@ -106,4 +108,3 @@ void blink(int milliseconds, int times) {
     delay(milliseconds);
   }
 }
-
